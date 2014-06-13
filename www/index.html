@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <link rel="stylesheet"  href="css/jquery.mobile-1.4.2.min.css">
+        <script src="js/jquery-2.0.2.min.js"></script>
+        <script src="js/jquery.mobile-1.4.2.min.js"></script>
+        <script src="phonegap.js"></script>
+        <title>Hello World</title>
+        <script type="text/javascript" >
+            var durationmax =5;
+            var limition=3;
+            var mediaTimer=null;
+            function funcCaptureVideo(){
+                navigator.device.capture.captureVideo(captureSuccess, captureError,{limit:limition,duration:durationmax});
+            }
+            function funcCaptureAudio(){
+                navigator.device.capture.captureAudio(captureSuccess, captureError,{limit:limition,duration:durationmax});
+            }
+            function funcCaptureImage(){
+                // 启动设备的摄像头应用程
+                // 允许用户最多采集2个图像
+                navigator.device.capture.captureImage(captureSuccess, captureError, {limit: limition,duration:durationmax});
+            }
+            // 采集操作成功完成后的回调函数
+            function captureSuccess(mediaFiles) {
+                var i, len;
+                var mediatype;
+                mediatype = mediaFiles[0].type.substr(0,5);
+                clearInterval(mediaTimer);
+                mediaTimer = null;
+                //随机播放照片
+                if (mediatype=="image"){
+                    mediaTimer = setInterval(function(){$("#mypic").attr("src",mediaFiles[Math.floor(Math.random() * ( limition + 1))].fullPath);} ,durationmax*1000);
+                }
+                //遍历MediaFile数组对象，显示最后的一个视频
+                for (i = 0, len = mediaFiles.length; i < len; i += 1) {
+                    mediatype = mediaFiles[i].type.substr(0,5);
+                    if (mediatype=="video"){
+                        $("#myvideo").attr("src",mediaFiles[i].fullPath);
+                    }
+                    if (mediatype=="audio"){
+                        $("#myaudio").attr("src",mediaFiles[i].fullPath);
+                    }
+                }
+            }
+            // 采集操作出错后的回调函数
+            function captureError(error) {
+                var msg = '捕获时发生错误: ' + error.code;
+                alert(msg);
+            }
+        </script>
+    </head>
+    <body>
+        <div data-role="page" id="media-capture">
+            <div data-role="header">
+                <h1>Capture 实例</h1>
+            </div>
+            <div data-role="content">
+                <div data-role="controlgroup"  data-type="horizontal" >
+                    <a href="#"  data-role="button" id="captureVideo" onclick="funcCaptureVideo()">Capture Video</a>
+                    <a href="#"  data-role="button" id="captureAudio" onclick="funcCaptureAudio()">Capture Audio</a>
+                    <a href="#"  data-role="button" id="captureImage" onclick="funcCaptureImage()">Capture Image</a>
+                </div>
+                <div >
+                    <audio id="myaudio" src="" controls="controls" >
+                    </audio>
+                </div>
+                <div >
+                    <video id="myvideo"  src="" controls="controls" height="240" width="320" autoplay="autoplay">
+                    </video>
+                </div>
+                <div>
+                    <img id="mypic" height="240" width="320" src=""/>
+                </div>
+            </div>
+            <div data-role="footer">
+                <h2>Copyright GDMEC 2014</h2>
+            </div>
+        </div>
+    </body>
+</html>
